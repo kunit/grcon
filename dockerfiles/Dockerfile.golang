@@ -1,0 +1,6 @@
+FROM golang:latest
+RUN apt-get -qq update && \
+    build-essential \
+    vim
+ADD . /go/src/github.com/kunit/grcon
+WORKDIR /go/src/github.com/kunit/grcon
