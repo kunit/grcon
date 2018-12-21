@@ -1,5 +1,5 @@
 FROM centos:6
-LABEL maintainer="kunit <kunihiko.takahashi@gmail.com>"
+LABEL maintainer="TAKAHASHI Kunihiko <kunihiko.takahashi@gmail.com>"
 
 ARG GO_VERSION
 
@@ -16,8 +16,8 @@ ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN set -eux &&\
   yum -y clean all &&\
   curl -OL $URL &&\
-	tar -C /usr/local -xzf $FILE &&\
-	rm $FILE &&\
+    tar -C /usr/local -xzf $FILE &&\
+    rm $FILE &&\
   mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 
 ADD . /go/src/github.com/kunit/grcon

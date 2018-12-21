@@ -12,7 +12,7 @@ SOURCES=Makefile CHANGELOG.md README.md LICENSE go.mod go.sum main.go
 DISTS=centos7 centos6 ubuntu16
 
 default: build
-ci: depsdev test proxy_integration probe_integration read_integration long_query_integration
+ci: depsdev test
 
 lint:
 	golint $(shell go list ./... | grep -v misc)
@@ -22,29 +22,24 @@ lint:
 test:
 	$(GO) test -v $(shell go list ./... | grep -v misc) -coverprofile=coverage.txt -covermode=count
 
+mod_init:
+	$(GO) mod init
+
+mod_download:
+	$(GO) mod download
+
 build:
 	$(GO) build -ldflags="$(BUILD_LDFLAGS)"
 
 install:
 	cp grcon $(BINDIR)/grcon
 
-build_darwin: depsdev
-	$(eval ver = v$(shell gobump show -r version/))
-	$(eval pkg = grcon_v$(shell gobump show -r version/)_darwin_amd64)
-	$(GO) build -ldflags="$(RELEASE_BUILD_LDFLAGS) -X $(PKG).version=$(ver)"
-	[ -d ./dist/$(ver) ] || mkdir ./dist/$(ver)
-	mkdir $(pkg)
-	mv grcon ./$(pkg)/grcon
-	cp CHANGELOG.md README.md LICENSE ./$(pkg)
-	tar -zcvf ./dist/$(ver)/$(pkg).tar.gz --exclude='*/.*' ./$(pkg)
-	rm -rf ./$(pkg)
-
 build_in_docker:
 	$(eval ver = v$(shell gobump show -r version/))
 	$(eval pkg = grcon_v$(shell gobump show -r version/)_linux_amd64.$(DIST))
 	$(GO) build -ldflags="$(RELEASE_BUILD_LDFLAGS) -X $(PKG).version=$(ver)"
-	[ -d ./dist/$(ver) ] || mkdir ./dist/$(ver)
-	mkdir $(pkg)
+	[ -d ./dist/$(ver) ] || mkdir -p ./dist/$(ver)
+	mkdir -p $(pkg)
 	mv grcon ./$(pkg)/grcon
 	cp CHANGELOG.md README.md LICENSE ./$(pkg)
 	tar -zcvf ./dist/$(ver)/$(pkg).tar.gz ./$(pkg)
@@ -54,8 +49,8 @@ build_static_in_docker:
 	$(eval ver = v$(shell gobump show -r version/))
 	$(eval pkg = grcon_v$(shell gobump show -r version/)_linux_amd64_static.$(DIST))
 	$(GO) build -a -tags netgo -installsuffix netgo -ldflags="$(RELEASE_BUILD_LDFLAGS) -X $(PKG).version=$(ver) -linkmode external -extldflags -static"
-	[ -d ./dist/$(ver) ] || mkdir ./dist/$(ver)
-	mkdir $(pkg)
+	[ -d ./dist/$(ver) ] || mkdir -p ./dist/$(ver)
+	mkdir -p $(pkg)
 	mv grcon ./$(pkg)/grcon
 	cp CHANGELOG.md README.md LICENSE ./$(pkg)
 	tar -zcvf ./dist/$(ver)/$(pkg).tar.gz ./$(pkg)
@@ -70,7 +65,7 @@ build_rpm:
 	rm -rf /root/rpmbuild/
 	rpmdev-setuptree
 	yum-builddep grcon.spec
-	mkdir $(pkg)
+	mkdir -p $(pkg)
 	cp -r $(SOURCES) $(pkg)
 	tar -zcvf $(pkg).tar.gz ./$(pkg)
 	rm -rf $(pkg)
@@ -96,10 +91,10 @@ depsdev:
 	GO111MODULE=off go get golang.org/x/lint/golint
 	GO111MODULE=off go get github.com/motemen/gobump/cmd/gobump
 	GO111MODULE=off go get github.com/tcnksm/ghr
-	GO111MODULE=off go get github.com/hairyhenderson/gomplate/cmd/gomplate
 	GO111MODULE=off go get github.com/Songmu/ghch
+	GO111MODULE=off go get github.com/hairyhenderson/gomplate/cmd/gomplate
 
-crossbuild: build_darwin
+crossbuild:
 	@for d in $(DISTS); do\
 		docker-compose up $$d;\
 	done

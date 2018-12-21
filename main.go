@@ -12,11 +12,11 @@ import (
 
 func main() {
 	var (
-		cpu     = flag.Int("cpu", 30, "cpu")
-		memory  = flag.Int64("memory", 512*1024*1024, "memory")
-		group   = flag.String("group", "grcon", "group")
-		user    = flag.String("user", "", "user")
-		command = flag.String("command", "", "command")
+		cpu     = flag.Int("cpu", 30, "cpu limit(%)")
+		memory  = flag.Int64("memory", 512*1024*1024, "memory limit(bytes)")
+		group   = flag.String("group", "grcon", "cgroups path")
+		user    = flag.String("user", "", "exec username")
+		command = flag.String("command", "", "exec command")
 	)
 	flag.Parse()
 
