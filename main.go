@@ -14,6 +14,7 @@ func main() {
 	var (
 		cpu     = flag.Int("cpu", 30, "cpu")
 		memory  = flag.Int64("memory", 512*1024*1024, "memory")
+		group   = flag.String("group", "grcon", "group")
 		user    = flag.String("user", "", "user")
 		command = flag.String("command", "", "command")
 	)
@@ -28,9 +29,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	path := fmt.Sprintf("/%s", *group)
 	quota := int64(*cpu) * 1000
 	limit := int64(*memory)
-	control, err := cgroups.New(cgroups.V1, cgroups.StaticPath("/grcon"), &specs.LinuxResources{
+	control, err := cgroups.New(cgroups.V1, cgroups.StaticPath(path), &specs.LinuxResources{
 		CPU: &specs.LinuxCPU{
 			Quota: &quota,
 		},
@@ -52,7 +54,6 @@ func main() {
 	}
 
 	sudoCommand := fmt.Sprintf("sudo -u %s %s", *user, *command)
-	fmt.Println(sudoCommand)
 	cmd := exec.Command("sh", "-c", sudoCommand)
 	out, err := cmd.Output()
 	if err != nil {
