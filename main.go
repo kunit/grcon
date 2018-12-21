@@ -53,12 +53,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	sudoCommand := fmt.Sprintf("sudo -u %s %s", *user, *command)
-	cmd := exec.Command("sh", "-c", sudoCommand)
-	out, err := cmd.Output()
+	out, err := exec.Command("sh", "-c", fmt.Sprintf("sudo -u %s %s", *user, *command)).Output()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
 	fmt.Print(string(out))
 }
