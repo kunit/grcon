@@ -1,8 +1,0 @@
-Package: grcon
-Maintainer: TAKAHASHI Kunihiko <kuihiko.takahashi@gmail.com>
-Architecture: amd64
-Priority: optional
-Section: net
-Version: {{ .Env.VERSION }}-1
-Description: grcon is a lightweight resource virtualization tool for linux processes. This is one-binary.
-Homepage: https://github.com/kunit/grcon
