@@ -12,7 +12,7 @@ make
 
 ## usage
 ```
- ./grcon -h
+./grcon -h
 Usage of ./grcon:
   -command string
         exec command
@@ -22,6 +22,8 @@ Usage of ./grcon:
         cgroups path (default "grcon")
   -memory int
         memory limit(bytes) (default 536870912)
+  -pids string
+        pids(comma separate)
   -user string
         exec username
 ```
