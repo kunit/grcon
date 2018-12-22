@@ -6,20 +6,8 @@ grcon is a lightweight resource virtualization tool for linux processes. grcon i
 It is an implementation of [rcon](https://github.com/matsumotory/rcon) with golang.
 
 ## build
-
-### build
-
 ```
-make docker
-make mod_init
-make mod_download
-make build
-```
-
-## build packages and release
-
-```
-make crossbuild
+make
 ```
 
 ## usage
@@ -36,7 +24,6 @@ Usage of ./grcon:
         memory limit(bytes) (default 536870912)
   -user string
         exec username
-```
 
 ## cpu example
 
