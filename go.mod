@@ -6,7 +6,7 @@ require (
 	github.com/docker/go-units v0.3.3 // indirect
 	github.com/godbus/dbus v5.0.1+incompatible // indirect
 	github.com/gogo/protobuf v1.2.0 // indirect
-	github.com/opencontainers/runtime-spec v0.1.2-0.20181111125026-1722abf79c2f // indirect
+	github.com/opencontainers/runtime-spec v0.1.2-0.20181111125026-1722abf79c2f
 	github.com/pkg/errors v0.8.0 // indirect
 	golang.org/x/sys v0.0.0-20181220204120-b00e65af1da0 // indirect
 )
