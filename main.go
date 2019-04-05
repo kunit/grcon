@@ -5,15 +5,14 @@ import (
 	"encoding/csv"
 	"flag"
 	"fmt"
+	"github.com/opencontainers/runtime-spec/specs-go"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 
 	"github.com/containerd/cgroups"
-	"github.com/opencontainers/runtime-spec/specs-go"
 )
 
 func main() {
@@ -113,7 +112,8 @@ func main() {
 
 		err = cmd.Start()
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 
 		streamReader := func(scanner *bufio.Scanner, outputChan chan string, doneChan chan bool) {
@@ -140,9 +140,9 @@ func main() {
 			case <-stdoutDoneChan:
 				stillGoing = false
 			case line := <-stdoutOutputChan:
-				log.Println(line)
+				fmt.Println(line)
 			case line := <-stderrOutputChan:
-				log.Println(line)
+				fmt.Println(line)
 			}
 		}
 
