@@ -1,17 +1,19 @@
 package main
 
 import (
+	"bufio"
+	"encoding/csv"
 	"flag"
 	"fmt"
+	"io"
+	"log"
 	"os"
 	"os/exec"
-	"encoding/csv"
-	"io"
-	"strings"
 	"strconv"
+	"strings"
 
 	"github.com/containerd/cgroups"
-	specs "github.com/opencontainers/runtime-spec/specs-go"
+	"github.com/opencontainers/runtime-spec/specs-go"
 )
 
 func main() {
@@ -96,12 +98,57 @@ func main() {
 			os.Exit(1)
 		}
 
-		out, err := exec.Command("sh", "-c", fmt.Sprintf("sudo -u %s %s", *user, *command)).Output()
+		cmd := exec.Command("sh", "-c", fmt.Sprintf("sudo -u %s %s", *user, *command))
+
+		stdout, err := cmd.StdoutPipe()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		stderr, err := cmd.StderrPipe()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		fmt.Print(string(out))
+		err = cmd.Start()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		streamReader := func(scanner *bufio.Scanner, outputChan chan string, doneChan chan bool) {
+			defer close(outputChan)
+			defer close(doneChan)
+			for scanner.Scan() {
+				outputChan <- scanner.Text()
+			}
+			doneChan <- true
+		}
+
+		stdoutScanner := bufio.NewScanner(stdout)
+		stdoutOutputChan := make(chan string)
+		stdoutDoneChan := make(chan bool)
+		stderrScanner := bufio.NewScanner(stderr)
+		stderrOutputChan := make(chan string)
+		stderrDoneChan := make(chan bool)
+		go streamReader(stdoutScanner, stdoutOutputChan, stdoutDoneChan)
+		go streamReader(stderrScanner, stderrOutputChan, stderrDoneChan)
+
+		stillGoing := true
+		for stillGoing {
+			select {
+			case <-stdoutDoneChan:
+				stillGoing = false
+			case line := <-stdoutOutputChan:
+				log.Println(line)
+			case line := <-stderrOutputChan:
+				log.Println(line)
+			}
+		}
+
+		if err := cmd.Wait(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 }
